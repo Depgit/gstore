@@ -1,0 +1,12 @@
+{
+  "name": "green",
+  "version": "1.0.0",
+  "description": "ecommerce application for plants",
+  "main": "main.js",
+  "scripts": {
+    "test": "node main",
+    "start": "node main"
+  },
+  "author": "Deepak Mishra",
+  "license": "ISC"
+}
