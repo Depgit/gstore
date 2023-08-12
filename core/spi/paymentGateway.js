@@ -87,7 +87,7 @@ class PaymentGateway {
     }
 }
 
-module.exports = {
+export default {
     PaymentGatewayOrderStatus,
     Filter,
     PaymentGatewayOrder,

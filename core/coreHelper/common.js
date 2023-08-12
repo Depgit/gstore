@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+import { createHmac } from 'crypto';
 
 function contains(s, e) {
     return s.includes(e);
@@ -105,7 +105,7 @@ function structToMap(s) {
 }
 
 function signCookie(secret, cookie) {
-    const hmac = crypto.createHmac('sha512', secret);
+    const hmac = createHmac('sha512', secret);
     hmac.update(cookie);
     const cb64 = hmac.digest('base64').replace(/=/g, "");
     if (cb64.length < 20) {
@@ -121,7 +121,7 @@ function unsignCookie(secret, encryptedCookie) {
     }
     const token = cook[0];
     const hash = cook[1];
-    const hmac = crypto.createHmac('sha512', secret);
+    const hmac = createHmac('sha512', secret);
     hmac.update(token);
     const expectedHash = hmac.digest('base64').replace(/=/g, "");
     if (hash === expectedHash) {
@@ -258,7 +258,7 @@ function isUserReferralCode(referralCode) {
     return isInt(referralCode);
 }
 
-module.exports = {
+export default {
     contains,
     mapContains,
     containsInt,

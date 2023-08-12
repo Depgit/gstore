@@ -31,7 +31,7 @@ class SmsInterface {
     }
 }
 
-module.exports = {
+export default {
     SmsData,
     SmsResponse,
     SmsError,

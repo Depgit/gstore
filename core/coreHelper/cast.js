@@ -28,7 +28,7 @@ function intToPointer(i) {
     return new Number(i);
 }
 
-module.exports = {
+export default {
     castString,
     castInt,
     castFloat64,

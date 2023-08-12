@@ -42,7 +42,7 @@ class MemoryStore {
     }
 }
 
-module.exports = {
+export default {
     MemoryData,
     MemoryResponse,
     MemoryStore

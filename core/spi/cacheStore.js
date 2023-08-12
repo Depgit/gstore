@@ -24,4 +24,4 @@ class CacheStore {
     }
 }
 
-module.exports = CacheStore;
+export default CacheStore;

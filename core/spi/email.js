@@ -43,7 +43,7 @@ class EmailInterface {
     }
 }
 
-module.exports = {
+export default {
     EmailData,
     EmailDataContent,
     EmailDataInfo,

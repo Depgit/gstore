@@ -51,7 +51,7 @@ function jsonResponseTemplate(status, response, errors) {
     return new Response(status, response, errors);
 }
 
-module.exports = {
+export default {
     Error,
     CommonError,
     Response,

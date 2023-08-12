@@ -43,7 +43,7 @@ class FileStore {
     }
 }
 
-module.exports = {
+export default {
     FileStoreData,
     FileStoreResponse,
     FileStore

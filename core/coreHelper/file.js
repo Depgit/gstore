@@ -1,9 +1,9 @@
-const fs = require('fs');
-const FileType = require('file-type');
+import { promises } from 'fs';
+import * as fileTpe from 'file-type';
 
 async function readFile(path) {
     try {
-        const content = await fs.promises.readFile(path);
+        const content = await promises.readFile(path);
         return content;
     } catch (err) {
         throw err;
@@ -12,7 +12,7 @@ async function readFile(path) {
 
 async function getMime(d) {
     try {
-        const fileType = await FileType.fromBuffer(d);
+        const fileType = await fileTpe.detect(d);
         if (!fileType) {
             return "application/octet-stream";
         }
@@ -22,7 +22,7 @@ async function getMime(d) {
     }
 }
 
-module.exports = {
-    readFile,
-    getMime
-};
+export default {
+    getMime,
+    readFile
+}

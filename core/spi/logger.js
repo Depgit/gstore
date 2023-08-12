@@ -36,7 +36,7 @@ class Logger {
     }
 }
 
-module.exports = {
+export default {
     Log,
     Logger
 };
