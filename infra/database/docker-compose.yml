@@ -1,0 +1,13 @@
+version: '3'
+services:
+  node-app:
+    build:
+      context: ../../  # Update the context path to go up two directories
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Map the container's 8080 port to the host's 8080 port
+
+  mongo:
+    image: mongo  # Use the official MongoDB image from Docker Hub
+    ports:
+      - "27017:27017"  # Map the container's 27017 port to the host's 27017 port

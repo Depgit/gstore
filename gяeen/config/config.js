@@ -1,10 +1,7 @@
-import validator from 'validator';
-import { readFileSync } from 'fs';
-import os from 'os';
 import { join } from 'path';
-import core from 'core'
 import coreHelper from 'core/coreHelper';
-
+import dotenv from 'dotenv';
+dotenv.config()
 
 
 class Core {
@@ -186,8 +183,7 @@ class ApplicationConfig {
   }
 }
 
-let Config =  new ApplicationConfig();
-
+let Config = new ApplicationConfig();
 
 async function Init(conf) {
   // const validate = new validator();
@@ -195,7 +191,6 @@ async function Init(conf) {
     conf = '.';
   }
   let configFileName;
-  console.log({conf});
   switch (process.env.env) {
     case 'dev':
       configFileName = 'config-dev.json';
@@ -206,8 +201,8 @@ async function Init(conf) {
     default:
       configFileName = 'config.json';
   }
+  console.log("Configuring ", configFileName);
   const configFilepath = join(conf, configFileName);
-  console.log('Configuring file path', configFilepath);
   const file = await coreHelper.file.readFile(configFilepath);
 
   const config = new ApplicationConfig();
@@ -217,31 +212,36 @@ async function Init(conf) {
     throw err;
   }
 
+  
+
   // if (!validator.validate(config)) {
     //   throw new Error('Configuration validation failed');
     // }
-    Config = config;
-    addEnvVariables();
-    console.log({Config});
+    // Config = config;
+    config.Env = process.env;
+    config.PaymentGateway.Razorpay.ApiKey = process.env.razorpay_api_key;
+    config.PaymentGateway.Razorpay.ApiSecret = process.env.razorpay_api_secret;
+    config.Email.Sendgrid.SecretKey = process.env.sendgrid_secret_key;
+
+    /* AWS S3 */
+    config.FileStore.S3.ApiKey = process.env.aws_s3_api_key;
+    config.FileStore.S3.SecretKey = process.env.aws_s3_secret_key;
+    config.FileStore.S3.BucketPrivate = 'kickstart-private';
+    config.FileStore.S3.BucketPublic = 'kickstart-public';
+    config.Version.Version = 'v1';
+
+    /* Database */
+    config.Databases.Main.Name = process.env.DATABASE_NAME
+    config.Databases.Main.Host = process.env.MONGO_URI
+    
+    console.log("config set");
+    return config
 }
 
-function addEnvVariables() {
-  Config.Env = process.env.env;
-  Config.PaymentGateway.Razorpay.ApiKey = process.env.razorpay_api_key;
-  Config.PaymentGateway.Razorpay.ApiSecret = process.env.razorpay_api_secret;
-  Config.Email.Sendgrid.SecretKey = process.env.sendgrid_secret_key;
+Config = await Init('.');
 
-  /* AWS S3 */
-  Config.FileStore.S3.ApiKey = process.env.aws_s3_api_key;
-  Config.FileStore.S3.SecretKey = process.env.aws_s3_secret_key;
-  Config.FileStore.S3.BucketPrivate = 'kickstart-private';
-  Config.FileStore.S3.BucketPublic = 'kickstart-public';
-  Config.Version.Version = 'v1';
-
-}
 
 export default {
-  Init,
-  Config,
+  Config
 };
 

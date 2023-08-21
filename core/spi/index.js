@@ -6,7 +6,6 @@ import * as memoryStore from './memoryStore.js'
 import * as paymentGateway from './paymentGateway.js'
 import * as sms from './sms.js'
 
-
 export default {
     cacheStore,
     email,
