@@ -2,15 +2,18 @@ import mongoose from "mongoose";
 import constant from '../constants/appConstant.js'
 
 const userSchema = new mongoose.Schema({
-    phone: {
+    email: {
         type: String,
         required: true,
     },
-    email: String,
+    password:{
+        type: String,
+        require: true
+    },
+    phone: String,
     type: String,
     referral_code: {
         type: String,
-        required: true,
     },
     referred_by: String,
     details: {

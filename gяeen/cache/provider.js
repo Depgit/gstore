@@ -1,29 +1,39 @@
-import Redis from "ioredis";
-import Config from "../config/config.js";
+import RedisProvider from './redis.js'; 
+import cacheStore    from 'core/spi/index.js'; 
+import Config from '../config/config.js'; 
+import singletons from '../singletons/index.js';
+import spi from 'core/spi/index.js';
+// import spi from 'core/spi/index.js'
 
-let redisInstance = null;
 
-function getRedisInstance() {
-  if (!redisInstance) {
-    console.log("initialising redis"); 
-    redisInstance = new Redis({
-      host: Config.Config.cache.redis.host,
-      port: Config.Config.cache.redis.port,
-      password: Config.Config.cache.redis.password,
-    });
 
-    redisInstance.on("connect", () => {
-      console.log("Connected to Redis");
-    });
-
-    redisInstance.on("error", (error) => {
-      console.error("Error connecting to Redis:", error);
-    });
+class Provider {
+  constructor(){
+    this.Client = new RedisProvider();
+  }
+  async Init() {
+    this.Client.Host = Config.Config.Cache.Redis.Host;
+    this.Client.Port = Config.Config.Cache.Redis.Port;
+    this.Client.Db = Config.Config.Cache.Redis.Db;
+    
+    try {
+      await this.Client.Init();
+      return null;
+    } catch (err) {
+      return err;
+    }
   }
 
-  return redisInstance;
+  CacheProvider() {
+    if (!this.Client) {
+      throw new Error('Cache not initialized');
+    }
+    return new cacheStore();
+  }
 }
 
-let reddis = await getRedisInstance();
+const cacheProvider = new Provider();
+// cacheProvider.Init()
+singletons.log.info("[cacheProvider",cacheProvider)
 
-export default reddis;
+export default cacheProvider;
