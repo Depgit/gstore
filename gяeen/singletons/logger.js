@@ -31,25 +31,27 @@ class MyLogger {
     
     info(...args) {
         const [context, ...logArgs] = args;
-        this.Logger.info(context, ...logArgs);
+        this.Logger.info({context}, ...logArgs);
     }
 
     debug(...args) {
         const [context, ...logArgs] = args;
-        this.Logger.debug(context, ...logArgs);
+        this.Logger.debug({context}, ...logArgs);
     }
 
     error(...args) {
         const [context, ...logArgs] = args;
-        this.Logger.error(context, ...logArgs);
+        this.Logger.error({context}, ...logArgs);
     }
 
     warn(...args) {
         const [context, ...logArgs] = args;
-        this.Logger.warn(context, ...logArgs);
+        this.Logger.warn({context}, ...logArgs);
     }
 }
 
-const log = new MyLogger();
+let log = new MyLogger();
+
+await log.initLogger();
 
 export default log;

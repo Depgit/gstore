@@ -1,0 +1,16 @@
+version: '3'
+services:
+  redis:
+    image: redis:7.0.4
+    container_name : redis
+    hostname: redis
+    ports:
+      - "6388:6388"
+    restart: always
+    networks:
+      - green
+
+networks:
+  green:
+    external:
+      name: green

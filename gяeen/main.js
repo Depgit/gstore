@@ -7,7 +7,10 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet'
 import fileUpload from 'express-fileupload';
-import reddis from './cache/provider.js';
+import cacheProvider from './cache/provider.js';
+import SignUp from './services/auth/singUp.js'
+// const { addV1Routes, addV1UserRoutes, addV1AdminRoutes, addV1BearerTokenRoutes } = require('./path-to-route-handlers');
+// const { AuthMiddleware, AdminAuthMiddleware, BearerTokenMiddleware } = require('./path-to-middlewares');
 
 
 
@@ -20,7 +23,7 @@ import reddis from './cache/provider.js';
         let Config = config.Config
         
         // logger init
-        let log    = await singleton.log.initLogger();
+        // let log    = singleton.log;
         
         // db init
         await singleton.db.init()
@@ -32,13 +35,15 @@ import reddis from './cache/provider.js';
         server(app);
         
         // // reddis setup
-        let Reddis = reddis
+        let Reddis = cacheProvider.Init()
+        singleton.log.info(Reddis);
         
 //     } catch (err) {
 //         console.error('Got error while initializing ', err);
 //         process.exit(1);
 //     }
 // })();
+
 
 
 function server(app) {
@@ -62,12 +67,74 @@ function server(app) {
             }
         })
     )
+
+    // Heartbeat route
+    app.get('/', (req, res) => {
+        res.status(200).json(Heartbeat());
+    });
+    
+    // Common routes
+    const commonRoutes = express.Router();
+    addV1Routes(commonRoutes); 
+    app.use('/v1', commonRoutes);
+    
+    // User routes with AuthMiddleware
+    // const userRoutes = express.Router();
+    // userRoutes.use(AuthMiddleware());
+    // addV1UserRoutes(userRoutes);
+    // app.use('/v1/user', userRoutes);
+    
+    // // Admin routes with AdminAuthMiddleware
+    // const adminRoutes = express.Router();
+    // adminRoutes.use(AdminAuthMiddleware());
+    // addV1AdminRoutes(adminRoutes);
+    // app.use('/v1/admin', adminRoutes);
+    
+    // // Admin protected routes with BearerTokenMiddleware
+    // const adminProtectedRoutes = express.Router();
+    // adminProtectedRoutes.use(BearerTokenMiddleware());
+    // addV1AdminRoutes(adminProtectedRoutes);
+    // app.use('/v1/admin/protected', adminProtectedRoutes);
+    
+    // // Bearer token protected routes
+    // const bearerTokenProtectedRoutes = express.Router();
+    // bearerTokenProtectedRoutes.use(BearerTokenMiddleware());
+    // addV1BearerTokenRoutes(bearerTokenProtectedRoutes);
+    // app.use('/v1/internal', bearerTokenProtectedRoutes);
+    
+    // Set environment mode
+    app.set('env', process.env.env === 'prod' ? 'production' : 'development');
+
+
     const PORT = Config.Env.PORT
-    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+    app.listen(PORT, () => singleton.log.info(`[main]`,`Server started on port ${PORT}`));
 
 }
 
+let startTime = new Date();
 
+// Heartbeat returns details of the instance running
+function Heartbeat() {
+  const uptime = new Date() - startTime;
+  const days = Math.floor(uptime / (1000 * 60 * 60 * 24));
+  const formattedUptime = new Date(uptime).toISOString().substr(11, 8);
+  return `${days} days ${formattedUptime}`;
+}
 
+function addV1Routes(r){
+    // r.get("/test",test);
+    r.post("/auth/singup",SignUp)
+    // r.post("/auth/login",auth.login)
+    // r.post("/auth/otp/send", auth.SendOtp)
+	// r.post("/auth/otp/validate", auth.ValidateOtp)
+	// r.post("/auth/get", auth.CheckToken)
+	// r.post("/auth/logout", auth.Logout)
+
+}
+
+// function test(req,res){
+//     console.log({res});
+//     return null;
+// }
 
 export default app
