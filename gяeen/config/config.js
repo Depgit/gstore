@@ -26,6 +26,7 @@ class Cookie {
     this.Name = '';
     this.Expiry = 0;
     this.Secure = false;
+    this.SameSite = ''
   }
 }
 
@@ -111,7 +112,7 @@ class SmsProviderInfo {
 class Email {
   constructor() {
     this.DefaultSender = new EmailDefaultSender();
-    this.Sendgrid = new EmailProviderInfo();
+    this.SendInBlue = new EmailProviderInfo();
   }
 }
 
@@ -221,7 +222,6 @@ async function Init(conf) {
     config.Env = process.env;
     config.PaymentGateway.Razorpay.ApiKey = process.env.razorpay_api_key;
     config.PaymentGateway.Razorpay.ApiSecret = process.env.razorpay_api_secret;
-    config.Email.Sendgrid.SecretKey = process.env.sendgrid_secret_key;
 
     /* AWS S3 */
     config.FileStore.S3.ApiKey = process.env.aws_s3_api_key;

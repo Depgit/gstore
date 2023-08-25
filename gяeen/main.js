@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet'
 import fileUpload from 'express-fileupload';
 import cacheProvider from './cache/provider.js';
-import SignUp from './services/auth/singUp.js'
+import auth from './services/auth/index.js'
 // const { addV1Routes, addV1UserRoutes, addV1AdminRoutes, addV1BearerTokenRoutes } = require('./path-to-route-handlers');
 // const { AuthMiddleware, AdminAuthMiddleware, BearerTokenMiddleware } = require('./path-to-middlewares');
 
@@ -36,7 +36,6 @@ import SignUp from './services/auth/singUp.js'
         
         // // reddis setup
         let Reddis = cacheProvider.Init()
-        singleton.log.info(Reddis);
         
 //     } catch (err) {
 //         console.error('Got error while initializing ', err);
@@ -123,12 +122,11 @@ function Heartbeat() {
 
 function addV1Routes(r){
     // r.get("/test",test);
-    r.post("/auth/singup",SignUp)
-    // r.post("/auth/login",auth.login)
-    // r.post("/auth/otp/send", auth.SendOtp)
-	// r.post("/auth/otp/validate", auth.ValidateOtp)
+    r.post("/auth/singup",auth.SignUp)
+    r.post("/auth/login",auth.Login)
+	r.post("/auth/otp/validate", auth.ValidateOtp)
+	r.get("/auth/logout", auth.Logout)
 	// r.post("/auth/get", auth.CheckToken)
-	// r.post("/auth/logout", auth.Logout)
 
 }
 

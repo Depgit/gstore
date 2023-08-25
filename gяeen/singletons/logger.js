@@ -14,13 +14,13 @@ class MyLogger {
             }
             this.Logger.LogLevel = logLevel;
             this.Logger.ConsoleEnabled = true;
-            this.Logger.FileEnabled = false;
-            this.Logger.LogFilename = '';
+            this.Logger.FileEnabled = process.env.FileEnable==='true';
+            this.Logger.LogFilename = process.env.LogFilename;
             this.Logger.LogFormat = '';
-            this.Logger.LogDirectory = '';
-            this.Logger.MaxBackup = 0;
-            this.Logger.FileMaxSize = 0;
-            this.Logger.MaxAge = 0;
+            this.Logger.LogDirectory = process.env.LogDirectory;
+            this.Logger.MaxBackup = 5;
+            this.Logger.FileMaxSize = 10*1024*1024;
+            this.Logger.MaxAge = 3600;
             await this.Logger.Init();
 
             console.log("logger file set");
@@ -30,23 +30,58 @@ class MyLogger {
     }
     
     info(...args) {
-        const [context, ...logArgs] = args;
-        this.Logger.info({context}, ...logArgs);
+        const context = args.shift(); 
+        const message = args.shift(); 
+
+        this.Logger.info({
+            context: context,
+            message: message,
+            additionalFields: args  
+        });
     }
 
     debug(...args) {
-        const [context, ...logArgs] = args;
-        this.Logger.debug({context}, ...logArgs);
+        const context = args.shift(); 
+        const message = args.shift(); 
+
+        this.Logger.debug({
+            context: context,
+            message: message,
+            additionalFields: args  
+        });
     }
 
     error(...args) {
-        const [context, ...logArgs] = args;
-        this.Logger.error({context}, ...logArgs);
+        const context = args.shift(); 
+        const message = args.shift(); 
+
+        this.Logger.error({
+            context: context,
+            message: message,
+            additionalFields: args  
+        });
     }
 
     warn(...args) {
-        const [context, ...logArgs] = args;
-        this.Logger.warn({context}, ...logArgs);
+        const context = args.shift(); 
+        const message = args.shift(); 
+
+        this.Logger.warn({
+            context: context,
+            message: message,
+            additionalFields: args  
+        });
+    }
+
+    trace(...args) {
+        const context = args.shift(); 
+        const message = args.shift(); 
+
+        this.Logger.trace({
+            context: context,
+            message: message,
+            additionalFields: args  
+        });
     }
 }
 

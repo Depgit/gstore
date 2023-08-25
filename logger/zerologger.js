@@ -1,7 +1,9 @@
-import pino from 'pino';
-import pinoRotatingFile from 'rotating-file-stream';
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
-import fs from 'fs/promises';
+import fs from 'fs'
+import CsvFormat from 'winston-csv-format';
+
 
 class Zerolog {
     constructor() {
@@ -10,7 +12,6 @@ class Zerolog {
         this.ConsoleEnabled = false;
         this.FileEnabled = false;
         this.LogFilename = null;
-        this.LogFormat = null;
         this.LogDirectory = null;
         this.MaxBackup = null;
         this.FileMaxSize = null;
@@ -18,12 +19,13 @@ class Zerolog {
     }
 
     async Init() {
-    
         const logOptions = {
-            level: this.LogLevel || 'info'
-            // prettyPrint: this.ConsoleEnabled,
+            level: this.LogLevel || 'info',
+            format: winston.format.printf(({ timestamp, level, message ,context}) => {
+                return `${timestamp}, ${level}, ${message},${context}`;
+            })
         };
-    
+
         if (this.FileEnabled) {
             try {
                 await fs.promises.mkdir(this.LogDirectory, { mode: 0o744, recursive: true });
@@ -31,19 +33,24 @@ class Zerolog {
                 console.error(`can't create log directory at ${this.LogDirectory}`, err);
                 throw err;
             }
-            logOptions.extreme = pinoRotatingFile({
-                filename: path.join(this.LogDirectory, this.LogFilename),
-                size: this.FileMaxSize,
-                interval: this.MaxAge,
-                path: this.LogDirectory,
-                rotate: this.MaxBackup,
-            });
-            this.Logger = pino(logOptions);
-        } else {
-            this.Logger = pino(logOptions); 
+            logOptions.transports = [
+                new DailyRotateFile({
+                    filename: path.join(this.LogDirectory, this.LogFilename),
+                    maxSize: this.FileMaxSize,
+                    maxFiles: this.MaxBackup,
+                    datePattern: 'YYYY-MM-DD',
+                    format: winston.format.combine(
+                        winston.format.timestamp(),
+                        winston.format.printf(({ timestamp, level, message ,context}) => {
+                            return `${timestamp}, ${level}, ${message},${context}`;
+                        })
+                    ),
+                }),
+            ];
         }
+
+        this.Logger = winston.createLogger(logOptions);
     }
-    
 
     error(...args) {
         this.Logger.error(...args);
@@ -62,7 +69,7 @@ class Zerolog {
     }
 
     trace(...args) {
-        this.Logger.trace(...args);
+        this.Logger.verbose(...args);
     }
 }
 

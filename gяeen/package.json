@@ -12,6 +12,7 @@
   "author": "Deepak Mishra",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
@@ -27,6 +28,7 @@
     "logger": "file:../logger/logger-1.0.0.tgz",
     "mongodb": "^5.7.0",
     "mongoose": "^7.4.3",
+    "nodemailer": "^6.9.4",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "url": "^0.11.1",
