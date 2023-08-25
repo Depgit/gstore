@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     phone: String,
     type: String,
+    name: String,
     referral_code: {
         type: String,
     },
@@ -32,17 +33,20 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    updated_on: Date,
+    updated_on: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 // Mongoose middleware (pre-save hook) to update the timestamp before updating a user
-userSchema.pre('updateOne', function (next) {
-    this.update({}, { $set: { updated_on: new Date() } });
+userSchema.pre('save', function (next) {
+    this.updated_on = new Date();
     next();
 });
 
+
 const userDetailsSchema = new mongoose.Schema({
-    name: String,
     date_of_birth: String,
     legal_name: String,
     pan_number:String,
@@ -61,16 +65,16 @@ const userDetailsSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    updated_on: Date,
+    updated_on: {
+        type: Date,
+        default: Date.now()
+    }
 })
 
-userDetailsSchema.pre('updateOne', function (next) {
-    this.update({}, { $set: { updated_on: new Date() } });
+userDetailsSchema.pre('save', function (next) {
+    this.updated_on = new Date();
     next();
 });
-
-
-
 
 const User = mongoose.model('User', userSchema);
 const KycStatus = mongoose.model('UserDetails', userDetailsSchema);

@@ -5,23 +5,21 @@ import cacheModels from "../../cache/cacheModels/index.js";
 import { User } from "../../scripts/user.js";
 import cacheProvider  from "../../cache/provider.js"
 import httpStatus from 'http-status-codes'
-
+import thirdparty from "../../thirdparty";
+import crypto from 'crypto'
 
 async function SignUp(req,res){
     let form = req.body
-    
-    singletons.log.info("[SignUp]",form)
 
     let result = await signUp(req,form);
-    singletons.log.info(result);
     if(result.err != null){
-        return res.status(httpStatus.StatusCodes.INTERNAL_SERVER_ERROR).end()
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
     }
     if(!result.res.status){
-        return res.status(httpStatus.StatusCodes.BAD_REQUEST).json(result.res)
+        return res.status(httpStatus.BAD_REQUEST).json(result.res)
     }
 
-    res.status(httpStatus.StatusCodes.OK).json(result.res)
+    res.status(httpStatus.ACCEPTED).json(result.res)
     return 
 }
 
@@ -37,12 +35,14 @@ async function signUp(req,form) {
                 err : null
             }
         }
+        let password = thirdparty.bcrypt.encrypt(form.password)
+
         const user = await User.create({
             email: form.email,
-            password: form.password
+            password: password
         })
         
-        let otpId = coreHelper.crypto.sha256(Buffer.alloc(4))
+        let otpId = coreHelper.crypto.sha256(crypto.randomBytes(2))
         let otp;
         if(config.Config.Core.Otp.Proxy){
             otp = config.Config.Core.Otp.Otp
@@ -55,25 +55,44 @@ async function signUp(req,form) {
         cacheOtp.Otp = otp
 
         let value = cacheOtp.toString();
-        singletons.log.info(value);
 
-        let cache = cacheProvider.Client.set(otpId,value,config.Config.Core.Otp.OtpExpiryDuration)
-        singletons.log.info(cache);
+        await cacheProvider.Client.set(otpId,value,config.Config.Core.Otp.OtpExpiryDuration)
+        
+        if(!config.Config.Core.Otp.Proxy){
+            const from = config.Config.Email.SendInBlue.Host
+            const to = form.email
+            const subject = '[Green Pellar] Email Varify'
+            const text = 'otp for verify the email : ' + otp
+            const mailObj = {
+                from,to,subject,text
+            }
+            const result = await thirdparty.sendEmail(mailObj);
 
-        await user.save()
+            singletons.log.info("[signUp]",result)
+        }
 
         return {
-            res: user,
-            err: null
+            res : coreHelper.response.jsonResponseTemplate(
+                true,{
+                    Msg : "successfuly sent otp",
+                    OtpId: otpId
+                },
+                null
+            ),
+            err : null
         }
     } catch (err) {
-        singletons.log.info("[signUp]",err);
+        singletons.log.error("[signUp]",err);
         return {
             res: null,
             err : err
         }
     }
 
+}
+
+function encrypt(password){
+    return password
 }
 
 export default SignUp

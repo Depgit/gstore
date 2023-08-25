@@ -1,9 +1,6 @@
 import RedisProvider from './redis.js'; 
 import cacheStore    from 'core/spi/index.js'; 
 import Config from '../config/config.js'; 
-import singletons from '../singletons/index.js';
-import spi from 'core/spi/index.js';
-// import spi from 'core/spi/index.js'
 
 
 
@@ -33,7 +30,5 @@ class Provider {
 }
 
 const cacheProvider = new Provider();
-// cacheProvider.Init()
-singletons.log.info("[cacheProvider",cacheProvider)
 
 export default cacheProvider;
