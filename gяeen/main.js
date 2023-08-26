@@ -9,8 +9,6 @@ import helmet from 'helmet'
 import fileUpload from 'express-fileupload';
 import cacheProvider from './cache/provider.js';
 import auth from './services/auth/index.js'
-// const { addV1Routes, addV1UserRoutes, addV1AdminRoutes, addV1BearerTokenRoutes } = require('./path-to-route-handlers');
-// const { AuthMiddleware, AdminAuthMiddleware, BearerTokenMiddleware } = require('./path-to-middlewares');
 
 
 
@@ -134,5 +132,6 @@ function addV1Routes(r){
 //     console.log({res});
 //     return null;
 // }
+
 
 export default app

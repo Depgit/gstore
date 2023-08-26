@@ -11,9 +11,15 @@ services:
       - green
 
   mongo:
-    image: mongo  
+    image: mongo:latest
     ports:
-      - "27017:27017" 
+      - "27017:27017"
+
+  mongo-shell:
+    image: mongo:latest
+    command: ["mongo"]
+    depends_on:
+      - mongo
 
 networks:
   green:
