@@ -1,12 +1,8 @@
 import coreHelper from "core/coreHelper";
 import singletons from "../../singletons"
 import config from "../../config/config";
-import cacheModels from "../../cache/cacheModels/index.js";
-import { User } from "../../scripts/user.js";
 import cacheProvider  from "../../cache/provider.js"
 import httpStatus from 'http-status-codes'
-import thirdparty from "../../thirdparty";
-import crypto from 'crypto'
 
 
 async function Logout(req,res){
