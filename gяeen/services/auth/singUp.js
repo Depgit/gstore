@@ -37,9 +37,7 @@ async function signUp(req,form) {
             }
         }
         let password = thirdparty.bcrypt.encrypt(form.password)
-        const userDetails = await UserDetails.create({
-            phone: form.phone
-        })
+        const userDetails = await UserDetails.create({})
         const user = await User.create({
             email: form.email,
             password: password,

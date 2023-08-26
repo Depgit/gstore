@@ -9,6 +9,7 @@ import helmet from 'helmet'
 import fileUpload from 'express-fileupload';
 import cacheProvider from './cache/provider.js';
 import auth from './services/auth/index.js'
+import AdminAuthMiddleware from './middleware/adminAuthMiddleware.js';
 
 
 
@@ -29,12 +30,15 @@ import auth from './services/auth/index.js'
         // // server init
         const app = express()
 
-        // // server setup
+        // server setup
         server(app);
         
-        // // reddis setup
-        let Reddis = cacheProvider.Init()
+        // reddis setup
+        cacheProvider.Init()
+
+        // aws init
         
+
 //     } catch (err) {
 //         console.error('Got error while initializing ', err);
 //         process.exit(1);
@@ -82,10 +86,10 @@ function server(app) {
     // app.use('/v1/user', userRoutes);
     
     // // Admin routes with AdminAuthMiddleware
-    // const adminRoutes = express.Router();
-    // adminRoutes.use(AdminAuthMiddleware());
-    // addV1AdminRoutes(adminRoutes);
-    // app.use('/v1/admin', adminRoutes);
+    const adminRoutes = express.Router();
+    adminRoutes.use(AdminAuthMiddleware);
+    addV1AdminRoutes(adminRoutes);
+    app.use('/v1/admin', adminRoutes);
     
     // // Admin protected routes with BearerTokenMiddleware
     // const adminProtectedRoutes = express.Router();
@@ -119,7 +123,6 @@ function Heartbeat() {
 }
 
 function addV1Routes(r){
-    // r.get("/test",test);
     r.post("/auth/singup",auth.SignUp)
     r.post("/auth/login",auth.Login)
 	r.post("/auth/otp/validate", auth.ValidateOtp)
@@ -128,10 +131,16 @@ function addV1Routes(r){
 
 }
 
+function addV1AdminRoutes(r){
+    
+}
+
 // function test(req,res){
 //     console.log({res});
 //     return null;
 // }
+
+
 
 
 export default app

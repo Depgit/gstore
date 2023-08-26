@@ -224,11 +224,11 @@ async function Init(conf) {
     config.PaymentGateway.Razorpay.ApiSecret = process.env.razorpay_api_secret;
 
     /* AWS S3 */
-    config.FileStore.S3.ApiKey = process.env.aws_s3_api_key;
-    config.FileStore.S3.SecretKey = process.env.aws_s3_secret_key;
-    config.FileStore.S3.BucketPrivate = 'kickstart-private';
-    config.FileStore.S3.BucketPublic = 'kickstart-public';
-    config.Version.Version = 'v1';
+    // config.FileStore.S3.ApiKey = process.env.aws_s3_api_key;
+    // config.FileStore.S3.SecretKey = process.env.aws_s3_secret_key;
+    // config.FileStore.S3.BucketPrivate = 'kickstart-private';
+    // config.FileStore.S3.BucketPublic = 'kickstart-public';
+    // config.Version.Version = 'v1';
 
     /* Database */
     config.Databases.Main.Name = process.env.DATABASE_NAME
