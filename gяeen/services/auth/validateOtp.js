@@ -77,7 +77,6 @@ async function validateOtp(req,form,token) {
 
 
         user.active=true
-        await user.save()
 
         let cacheuser = new cacheModels.CacheUser()
         cacheuser.Id = user._id
@@ -85,7 +84,10 @@ async function validateOtp(req,form,token) {
         cacheuser.Type = user.type
         cacheuser.Name = user.name
 
-        await cacheProvider.Client.set(token,cacheuser,config.Config.Cookie.Expiry)
+        const [savedUser, cacheSetResult] = await Promise.all([
+            user.save(),
+            cacheProvider.Client.set(token, cacheuser, config.Config.Cookie.Expiry)
+        ]);
 
         return {
             res : coreHelper.response.jsonResponseTemplate(

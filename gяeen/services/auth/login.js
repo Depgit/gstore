@@ -2,12 +2,12 @@ import coreHelper from "core/coreHelper";
 import singletons from "../../singletons"
 import config from "../../config/config";
 import cacheModels from "../../cache/cacheModels/index.js";
-import { User } from "../../scripts/user.js";
+import { User,UserDetails } from "../../scripts/user.js";
 import cacheProvider  from "../../cache/provider.js"
 import httpStatus from 'http-status-codes'
 import thirdparty from "../../thirdparty";
 import crypto from 'crypto'
-
+import emailQueue from "../../task/email";
 
 async function Login(req,res){
     let form = req.body
@@ -32,7 +32,7 @@ async function Login(req,res){
 
 async function login(req,form,token) {
     try {
-        const user = await User.findOne({email:form.email});
+        const user = await User.findOne({email:form.email}).populate('details')
         if(user==null){
             singletons.log.error("[login]","user does not exists")
             return {
@@ -73,16 +73,20 @@ async function login(req,form,token) {
             await cacheProvider.Client.set(otpId,value,config.Config.Core.Otp.OtpExpiryDuration)
 
             if(!config.Config.Core.Otp.Proxy){
-                const from = process.env.EMAIL_USER
-                const to = form.email
-                const subject = '[Green Pellar] Email Varify'
-                const text = 'otp for verify the email : ' + otp
-                const mailObj = {
-                    from,to,subject,text
-                }
-                const result = await thirdparty.sendEmail(mailObj);
-    
-                singletons.log.info("[login]",result)
+                // const from = config.Config.Email.SendInBlue.Host
+                // const to = form.email
+                // const subject = '[Green Pellar] Email Varify'
+                // const text = 'otp for verify the email : ' + otp
+                // const mailObj = {
+                //     from,to,subject,text
+                // }
+                // const result = await thirdparty.sendEmail(mailObj);
+                
+                emailQueue.add({
+                    to: form.email,
+                    subject : '[Green Pellar] Email Varify',
+                    text : 'otp for verify the email : ' + otp
+                })
             }
 
             return {
@@ -102,6 +106,7 @@ async function login(req,form,token) {
         cacheuser.Email = user.email
         cacheuser.Type = user.type
         cacheuser.Name = user.name
+        cacheuser.phone = user.details.phone
 
         await cacheProvider.Client.set(token,cacheuser,config.Config.Cookie.Expiry)
         

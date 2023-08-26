@@ -2,11 +2,12 @@ import coreHelper from "core/coreHelper";
 import singletons from "../../singletons"
 import config from "../../config/config";
 import cacheModels from "../../cache/cacheModels/index.js";
-import { User } from "../../scripts/user.js";
+import { User, UserDetails } from "../../scripts/user.js";
 import cacheProvider  from "../../cache/provider.js"
 import httpStatus from 'http-status-codes'
 import thirdparty from "../../thirdparty";
 import crypto from 'crypto'
+import emailQueue from "../../task/email";
 
 async function SignUp(req,res){
     let form = req.body
@@ -18,7 +19,7 @@ async function SignUp(req,res){
     if(!result.res.status){
         return res.status(httpStatus.BAD_REQUEST).json(result.res)
     }
-
+    singletons.log.info("[SignUp]","sign up successfully")
     res.status(httpStatus.ACCEPTED).json(result.res)
     return 
 }
@@ -36,10 +37,13 @@ async function signUp(req,form) {
             }
         }
         let password = thirdparty.bcrypt.encrypt(form.password)
-
+        const userDetails = await UserDetails.create({
+            phone: form.phone
+        })
         const user = await User.create({
             email: form.email,
-            password: password
+            password: password,
+            details: userDetails._id
         })
         
         let otpId = coreHelper.crypto.sha256(crypto.randomBytes(2))
@@ -59,16 +63,23 @@ async function signUp(req,form) {
         await cacheProvider.Client.set(otpId,value,config.Config.Core.Otp.OtpExpiryDuration)
         
         if(!config.Config.Core.Otp.Proxy){
-            const from = config.Config.Email.SendInBlue.Host
-            const to = form.email
-            const subject = '[Green Pellar] Email Varify'
-            const text = 'otp for verify the email : ' + otp
-            const mailObj = {
-                from,to,subject,text
-            }
-            const result = await thirdparty.sendEmail(mailObj);
+            // const from = config.Config.Email.SendInBlue.Host
+            // const to = form.email
+            // const subject = '[Green Pellar] Email Varify'
+            // const text = 'otp for verify the email : ' + otp
+            // const mailObj = {
+            //     from,to,subject,text
+            // }
+            // const result = await thirdparty.sendEmail(mailObj);
 
-            singletons.log.info("[signUp]",result)
+            // singletons.log.info("[signUp]",result)
+
+            emailQueue.add({
+                to: form.email,
+                subject : '[Green Pellar] Email Varify',
+                text : 'otp for verify the email : ' + otp
+            })
+
         }
 
         return {
@@ -89,10 +100,6 @@ async function signUp(req,form) {
         }
     }
 
-}
-
-function encrypt(password){
-    return password
 }
 
 export default SignUp
