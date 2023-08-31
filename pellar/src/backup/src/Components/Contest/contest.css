@@ -1,0 +1,15 @@
+
+.ct-label{
+    margin-bottom: 0px;
+    margin-left: 5px;
+    margin-top: 60px;
+}
+
+@media (max-width: 576px) {
+    .col-4 {
+        width: 50%;
+    }
+    .full-screen{
+        height: 20px;
+    }
+}
