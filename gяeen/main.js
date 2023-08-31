@@ -10,8 +10,8 @@ import fileUpload from 'express-fileupload';
 import cacheProvider from './cache/provider.js';
 import auth from './services/auth/index.js'
 import AdminAuthMiddleware from './middleware/adminAuthMiddleware.js';
-
-
+import s3Store from './singletons/aws.js';
+import product from './services/product/index.js';
 
 // (async () => {
 //     try {
@@ -37,7 +37,7 @@ import AdminAuthMiddleware from './middleware/adminAuthMiddleware.js';
         cacheProvider.Init()
 
         // aws init
-        
+        await s3Store.Init();
 
 //     } catch (err) {
 //         console.error('Got error while initializing ', err);
@@ -132,6 +132,7 @@ function addV1Routes(r){
 }
 
 function addV1AdminRoutes(r){
+    r.post("add/product",product.AddProduct)
     
 }
 

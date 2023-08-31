@@ -3,13 +3,7 @@ import config from '../config/config';
 
 class S3Store {
     constructor() {
-        this.client = new S3Client({
-            region: config.Config.FileStore.S3.Region, 
-            credentials: {
-                accessKeyId: config.Config.FileStore.S3.ApiKey, 
-                secretAccessKey: config.Config.FileStore.S3.SecretKey, 
-            },
-        });
+        this.client = null;
     }
 
     async Init() {
@@ -28,9 +22,8 @@ class S3Store {
             },
         });
     
-        const s3Client = new S3Client(clientConfig);
+        this.client = new S3Client(clientConfig);
         console.log("aws configure done");
-        return s3Client;
     }
 
     async add(sd, bucket) {
@@ -54,7 +47,7 @@ class S3Store {
                 };
                 output = await this.client.send(new PutObjectCommand(params));
             }
-            return output;
+            return null
         } catch (err) {
             return err;
         }
@@ -142,7 +135,6 @@ class S3Store {
 }
 
 const s3Store = new S3Store();
-s3Store.Init()
 
 export default s3Store
 
