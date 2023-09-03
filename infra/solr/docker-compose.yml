@@ -1,0 +1,16 @@
+version: '3'
+services:
+  solr:
+    image: solr:8.11.1
+    container_name: solr
+    hostname: solr
+    ports:
+      - "8983:8983"
+    restart: always
+    networks:
+      - green
+
+networks:
+  green:
+    external:
+      name: green

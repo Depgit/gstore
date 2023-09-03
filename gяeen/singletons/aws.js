@@ -1,9 +1,16 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import config from '../config/config';
+import spi from 'core/spi';
 
 class S3Store {
     constructor() {
-        this.client = null;
+        this.client = new S3Client({
+            region: config.Config.FileStore.S3.Region, 
+            credentials: {
+                accessKeyId: config.Config.FileStore.S3.ApiKey, 
+                secretAccessKey: config.Config.FileStore.S3.SecretKey, 
+            },
+        });
     }
 
     async Init() {
@@ -13,7 +20,7 @@ class S3Store {
             accessId: config.Config.FileStore.S3.ApiKey,
             secretKey: config.Config.FileStore.S3.SecretKey,
         };
-    
+
         const clientConfig = new S3Store({
             region: conf.zone,
             credentials: {
@@ -21,9 +28,10 @@ class S3Store {
                 secretAccessKey: conf.secretKey, 
             },
         });
-    
-        this.client = new S3Client(clientConfig);
+
+        const s3Client = new S3Client(clientConfig);
         console.log("aws configure done");
+        return s3Client;
     }
 
     async add(sd, bucket) {
@@ -32,7 +40,7 @@ class S3Store {
             if (this.client === null) {
                 throw new Error("S3 adapter has not been initialized");
             }
-            if (sd.BodyStream) {
+            if (sd.bodyStream) {
                 const params = {
                     Bucket: bucket,
                     Key: String(sd.key),
@@ -79,7 +87,7 @@ class S3Store {
                 Key: key
             };
             const output = await this.client.send(new GetObjectCommand(params));
-            
+
             // Return 404 if NoSuchKey error
             if (output.$metadata.httpStatusCode === 404) {
                 return {
@@ -87,7 +95,7 @@ class S3Store {
                     key: key
                 };
             }
-            
+
             // Return 500 for other errors
             if (output.$metadata.httpStatusCode !== 200) {
                 return {
@@ -95,7 +103,7 @@ class S3Store {
                     key: key
                 };
             }
-    
+
             return {
                 key: key,
                 bodyStream: output.Body
@@ -104,7 +112,7 @@ class S3Store {
             return err;
         }
     }
-    
+
     async listAll(bucket) {
         try {
             if (!this.client) {
@@ -114,7 +122,7 @@ class S3Store {
                 Bucket: bucket
             };
             const output = await this.client.send(new ListObjectsV2Command(params));
-            
+
             const fileObjects = output.Contents.map(item => ({
                 key: item.Key,
                 meta: {
@@ -123,18 +131,18 @@ class S3Store {
                     "Storage class": item.StorageClass,
                 }
             }));
-            
+
             return fileObjects;
         } catch (err) {
             return err;
         }
     }
-    
-    
-    
+
+
+
 }
 
 const s3Store = new S3Store();
 
-export default s3Store
 
+export default s3Store

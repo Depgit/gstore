@@ -3,7 +3,7 @@ import GetUser from "../serviceHelper/auth/index.js";
 import singletons from "../singletons/index.js";
 import httpStatus from 'http-status-codes'
 
-async function AdminAuthMiddleware(req,res){
+async function AdminAuthMiddleware(req,res,next){
     let user = await GetUser.GetUser(req,res);
     if(user === null){
         singletons.log.error("[AuthModdleware]","user not found");
@@ -17,7 +17,7 @@ async function AdminAuthMiddleware(req,res){
             false,"Not Authorise",null
         ))
     }
-    return
+    next();
 }
 
 export default AdminAuthMiddleware

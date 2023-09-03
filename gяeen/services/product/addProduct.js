@@ -6,11 +6,12 @@ import httpStatus from 'http-status-codes'
 import s3Store from "../../singletons/aws";
 import spi from "core/spi";
 import { Product } from "../../scripts/product";
+import es from "../../singletons/elasticSearch";
 
 
 async function AddProduct(req,res){
     let form = req.body
-
+    singletons.log.info("[AddProduct]",form.title)
     let result = await addProduct(req,form);
     if(result.err != null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
@@ -25,10 +26,10 @@ async function AddProduct(req,res){
 
 async function addProduct(req,form){
     try {
-        const image_file = req.files.file
+        const image_file = req.files
         let sd = new spi.fileStore.FileStoreData();
-        sd.bodyStream = image_file.product_image
-        sd.key = image_file.name
+        sd.bodyStream = image_file.product_image.data
+        sd.key = image_file.product_image.name
         let output = await s3Store.add(sd,config.Config.FileStore.S3.BucketPublic)
         if(output!= null){
             singletons.log.error("[addProduct]","AWS upload image error")
@@ -45,17 +46,20 @@ async function addProduct(req,form){
             url: form.url,
             image_url: sd.key,
             description: form.description,
-            url : form.url,
             vendor: form.vendor
         })
 
-
-
+        // let esResponse = await es.add(product,'products','product');
+        // singletons.log.info("[addProduct], elastic search",esResponse);
+        // if(esResponse.err !== null) {
+        //     throw new Error(esResponse.err)
+        // }
         return {
             res : coreHelper.response.jsonResponseTemplate(
                 true,{
                     Msg : "product added successfuly ",
-                    Product: product
+                    Product: product,
+                    // ElasticResponse: esResponse
                 },
                 null
             ),

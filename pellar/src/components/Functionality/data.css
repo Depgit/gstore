@@ -1,0 +1,55 @@
+.container_data {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(to right, #f5f5f5, #f5f5f5);
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    backdrop-filter: blur(10px);
+  }
+.backgroundCenter {
+    position: relative;
+    height: 50vh;
+    width: 90vh;
+    margin: auto;
+    overflow: hidden;
+  }
+  
+  .backgroundCenter::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80%;
+    height: 80%;
+    background-image: url('https://res.cloudinary.com/depimage/image/upload/v1678642770/sdtally_automation_bmcbio.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    z-index: -1;
+  }
+  
+  .backgroundCenter > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 20%;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    border-top-right-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  } */
+  

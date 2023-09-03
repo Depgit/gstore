@@ -12,14 +12,11 @@ services:
 
   mongo:
     image: mongo:latest
+    container_name: mongo
     ports:
       - "27017:27017"
+    restart: always
 
-  mongo-shell:
-    image: mongo:latest
-    command: ["mongo"]
-    depends_on:
-      - mongo
 
 networks:
   green:

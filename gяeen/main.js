@@ -12,6 +12,8 @@ import auth from './services/auth/index.js'
 import AdminAuthMiddleware from './middleware/adminAuthMiddleware.js';
 import s3Store from './singletons/aws.js';
 import product from './services/product/index.js';
+import cron from 'node-cron'
+// import es from './singletons/elasticSearch.js';
 
 // (async () => {
 //     try {
@@ -39,13 +41,19 @@ import product from './services/product/index.js';
         // aws init
         await s3Store.Init();
 
+        // elastic search init
+        // await es.Init();
+
 //     } catch (err) {
 //         console.error('Got error while initializing ', err);
 //         process.exit(1);
 //     }
 // })();
 
-
+const taskHeartbeat = cron.schedule('1 * * * *', () => {
+    console.log('running since', Heartbeat());
+});
+taskHeartbeat.start();
 
 function server(app) {
     app.use(bodyParser.json());
@@ -53,7 +61,18 @@ function server(app) {
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ limit: '50mb', extended: true }));
     app.use(cookieParser());
-    app.use(cors());
+    const whitelist = ["http://localhost:3000"]
+    const corsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+        } else {
+        callback(new Error("Not allowed by CORS"))
+        }
+    },
+    credentials: true,
+    }
+    app.use(cors(corsOptions))
     app.use(
         helmet.contentSecurityPolicy({
             directives: {
@@ -74,6 +93,7 @@ function server(app) {
         res.status(200).json(Heartbeat());
     });
     
+    
     // Common routes
     const commonRoutes = express.Router();
     addV1Routes(commonRoutes); 
@@ -86,8 +106,8 @@ function server(app) {
     // app.use('/v1/user', userRoutes);
     
     // // Admin routes with AdminAuthMiddleware
-    const adminRoutes = express.Router();
-    adminRoutes.use(AdminAuthMiddleware);
+    let adminRoutes = express.Router();
+    adminRoutes.use(AdminAuthMiddleware)
     addV1AdminRoutes(adminRoutes);
     app.use('/v1/admin', adminRoutes);
     
@@ -108,7 +128,7 @@ function server(app) {
 
 
     const PORT = Config.Env.PORT
-    app.listen(PORT, () => singleton.log.info(`[main]`,`Server started on port ${PORT}`));
+    app.listen(PORT, () => console.log(`[main]`,`Server started on port ${PORT}`));
 
 }
 
@@ -122,26 +142,21 @@ function Heartbeat() {
   return `${days} days ${formattedUptime}`;
 }
 
+
+
 function addV1Routes(r){
     r.post("/auth/singup",auth.SignUp)
     r.post("/auth/login",auth.Login)
 	r.post("/auth/otp/validate", auth.ValidateOtp)
 	r.get("/auth/logout", auth.Logout)
-	// r.post("/auth/get", auth.CheckToken)
+	// r.post("/auth/get", auth.CheckToken) 
 
 }
 
 function addV1AdminRoutes(r){
-    r.post("add/product",product.AddProduct)
+    r.post("/add/product",product.AddProduct)
     
 }
-
-// function test(req,res){
-//     console.log({res});
-//     return null;
-// }
-
-
 
 
 export default app
