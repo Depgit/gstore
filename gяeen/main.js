@@ -61,16 +61,16 @@ function server(app) {
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ limit: '50mb', extended: true }));
     app.use(cookieParser());
-    const whitelist = ["http://localhost:3000"]
+    const whitelist = ["http://localhost:3000","http://127.0.0.1:3000"]
     const corsOptions = {
     origin: function (origin, callback) {
-        if (!origin || whitelist.indexOf(origin) !== -1) {
-        callback(null, true)
-        } else {
-        callback(new Error("Not allowed by CORS"))
-        }
-    },
-    credentials: true,
+            if (!origin || whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+            } else {
+            callback(new Error("Not allowed by CORS"))
+            }
+        },
+        credentials: true,
     }
     app.use(cors(corsOptions))
     app.use(
@@ -89,7 +89,7 @@ function server(app) {
     )
 
     // Heartbeat route
-    app.get('/', (req, res) => {
+    app.get(['/', '/green'], (req, res) => {
         res.status(200).json(Heartbeat());
     });
     
@@ -149,13 +149,14 @@ function addV1Routes(r){
     r.post("/auth/login",auth.Login)
 	r.post("/auth/otp/validate", auth.ValidateOtp)
 	r.get("/auth/logout", auth.Logout)
-	// r.post("/auth/get", auth.CheckToken) 
+	r.get("/auth/get", auth.CheckToken) 
 
+    r.get("/get/product",product.GetProductAll)
+    
 }
 
 function addV1AdminRoutes(r){
     r.post("/add/product",product.AddProduct)
-    
 }
 
 

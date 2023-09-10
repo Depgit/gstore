@@ -6,6 +6,8 @@ import Home from './components/Home/Home';
 import Login from './components/Auth/login';
 import Signup from './components/Auth/signup';
 import AuthPage from './components/Auth/authPage';
+import Verifyotp from './components/Auth/verifyOtp';
+import AddProduct from './components/AddProduct/AddProduct';
 
 const Routing = () => {
   // const history = useNavigate();
@@ -29,6 +31,8 @@ const Routing = () => {
        <Route exact path="/login" element={<Login />} />
        <Route exact path="/signup" element={<Signup />} />
        <Route exact path="/home" element={<Home />} />
+       <Route exact path="/verifyotp" element={<Verifyotp />} />
+       <Route exact path="/add/product" element={<AddProduct />} />
        <Route path="/" element={<AuthPage />} />
     </Routes>
   )
@@ -44,7 +48,7 @@ function App() {
     //   <ContestContext.Provider value={{ contest, dispatchContest }}>
     //     <UserContext.Provider value={{ state, dispatch }}>
           <BrowserRouter>
-            <Navbar />
+            {/* <Navbar /> */}
             <Routing />
           </BrowserRouter>
     //     {/* </UserContext.Provider>

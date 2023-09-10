@@ -7,7 +7,6 @@ const apiUrl = process.env.REACT_APP_API_ENDPOINT;
 
 export default function Login() {
     const history = useNavigate('')
-    // const [Name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
 
@@ -32,20 +31,27 @@ export default function Login() {
               "Content-Type": "application/json",
               "applicaiton-type": "application/json"
           },
+          credentials: 'include',
           body: JSON.stringify({
               email,
               password
           })
       }).then(res => res.json())
           .then(data=>{
-              if(data.Error){
-                  console.log(data.Error);
-                  alert(data.Error);
+              if(!data.status){
+                  console.log(data.errors);
+                  throw new Error(data.errors)
+              }
+              if(data.response.OtpId){
+                alert('Please verify otp');
+                console.log(data);
+                localStorage.setItem("OtpId",data.response.OtpId)
+                history('/verifyotp')
               }else{
-                  alert('Login Successfully');
-                  localStorage.setItem("jwt",data.token)
-                  localStorage.setItem("user",JSON.stringify(data.Response))
-                  history('/sendmail');
+                    alert('Login Successfully');
+                  console.log(data);
+                  localStorage.setItem("user",JSON.stringify(data.response.User))
+                  history('/home')
               }
           }).catch(err=>{
             alert(err)

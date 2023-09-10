@@ -1,17 +1,15 @@
 import coreHelper from "core/coreHelper";
 import singletons from "../../singletons"
 import config from "../../config/config";
-import cacheProvider  from "../../cache/provider.js"
 import httpStatus from 'http-status-codes'
 import s3Store from "../../singletons/aws";
 import spi from "core/spi";
-import { Product } from "../../scripts/product";
+import { Product, Variant } from "../../scripts/product";
 import es from "../../singletons/elasticSearch";
-
+import crypto from 'crypto'
 
 async function AddProduct(req,res){
     let form = req.body
-    singletons.log.info("[AddProduct]",form.title)
     let result = await addProduct(req,form);
     if(result.err != null){
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).end()
@@ -29,7 +27,8 @@ async function addProduct(req,form){
         const image_file = req.files
         let sd = new spi.fileStore.FileStoreData();
         sd.bodyStream = image_file.product_image.data
-        sd.key = image_file.product_image.name
+        let time = Date.now();
+        sd.key = String(time) + image_file.product_image.name ;
         let output = await s3Store.add(sd,config.Config.FileStore.S3.BucketPublic)
         if(output!= null){
             singletons.log.error("[addProduct]","AWS upload image error")
@@ -40,14 +39,43 @@ async function addProduct(req,form){
                 err : null
             }
         }
+        let variant;
+        let product;
+        if(form.productId){
+            product = await Product.findById(form.productId);
+            if (!product) {
+                return {
+                res: coreHelper.response.jsonResponseTemplate(
+                    false,
+                    null,
+                    "Product not found"
+                ),
+                err: null,
+                };
+            }
 
-        const product = await Product.create({
-            title : form.title,
-            url: form.url,
-            image_url: sd.key,
-            description: form.description,
-            vendor: form.vendor
-        })
+            variant = await Variant.create({
+                image_url: sd.key,
+                price: form.price,
+            });
+
+            product.variants.push(variant);
+            await product.save();
+        }else {
+            variant = await Variant.create({
+                image_url: sd.key,
+                price: form.price,
+            })
+            product = await Product.create({
+                title : form.title,
+                url: form.url,
+                image_url: sd.key,
+                description: form.description,
+                vendor: form.vendor,
+                price: form.price,
+                variants: variant
+            })
+        }
 
         // let esResponse = await es.add(product,'products','product');
         // singletons.log.info("[addProduct], elastic search",esResponse);

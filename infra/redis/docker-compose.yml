@@ -6,9 +6,6 @@ services:
     hostname: redis
     ports:
       - "6388:6388"
-    volumes:
-    - ./solr-data:/var/solr/data 
-    - ./solr-config:/opt/solr/server/solr/configsets/myconfig 
     restart: always
     networks:
       - green

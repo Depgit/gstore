@@ -1,24 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../ExtraTabs/Button';
 import './home.css';
 import Card from '../card/card';
-import image_path from '../../assest/flower.jpeg'
+const apiUrl = process.env.REACT_APP_API_ENDPOINT;
+
 function Home() {
   const history = useNavigate('');
+  const [cardData, setCardData] = useState([])
 
-  const cardData = [];
-  for(let i=1;i<20;i++){
-     cardData.push(
-         { id: i, title: 'Product 1', image: `${image_path}`, price: 19.99 }
-     )
-  }
+  useEffect(() => {
+    fetch(`${apiUrl}/v1/get/product`, {
+      method: "get",
+      headers: {
+          "Content-Type": "application/json",
+          "applicaiton-type": "application/json"
+      }
+  }).then(res => res.json())
+      .then(data=>{
+          if(!data.status){
+              console.log(data.errors);
+              throw new Error(data.errors)
+          }
+          setCardData(data.response.Product)
+        }).catch(err=>{
+          alert(err)
+        })
+        
+      }, [])
+  console.log({cardData});
+  
 
   return (
     <div className="container home-container">
       <div className="row">
         {cardData.map((card) => (
-          <div key={card.id} className="col-lg-3 col-md-4 col-sm-6">
+          <div key={card._id} className="col-lg-3 col-md-4 col-sm-6">
             <Card product={card} />
           </div>
         ))}

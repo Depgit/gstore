@@ -16,6 +16,9 @@ const ProductSchema = new mongoose.Schema({
     vendor: {
         type: String
     },
+    price: {
+        type: String
+    },
     variants : {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Variant'

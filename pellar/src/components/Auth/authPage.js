@@ -9,7 +9,7 @@ function AuthPage() {
     
     return (
         <div className="container_home">
-            <h1>Welcome to SD TALLY Automation!</h1>
+            <h1>Welcome to Green Pellar!</h1>
             <div >
                 <Button name="Login" onClick={() => history('/login')} />
                 <Button name="Signup" onClick={() => history('/signup')}/>

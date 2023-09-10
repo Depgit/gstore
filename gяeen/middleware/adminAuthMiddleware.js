@@ -11,6 +11,7 @@ async function AdminAuthMiddleware(req,res,next){
             false,"Inavalid Token",null
         ))
     }
+    
     if(user.type===""){
         singletons.log.error("[AuthModdleware]","Not Authorise ");
         return res.status(httpStatus.UNAUTHORIZED).json(coreHelper.response.jsonResponseTemplate(

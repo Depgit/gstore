@@ -20,14 +20,13 @@ async function Login(req,res){
         return res.status(httpStatus.BAD_REQUEST).json(result.res)
     }
 
-    res.cookie(config.Config.Cookie.Name, token, {
+    return res.cookie(config.Config.Cookie.Name, token, {
         expires: new Date(Date.now() + config.Config.Cookie.Expiry),
         path: '/',
         secure: config.Config.Cookie.Secure,
         httpOnly: true,
         sameSite: config.Config.Cookie.SameSite 
       }).status(httpStatus.ACCEPTED).json(result.res)
-    return 
 }
 
 async function login(req,form,token) {
@@ -73,15 +72,6 @@ async function login(req,form,token) {
             await cacheProvider.Client.set(otpId,value,config.Config.Core.Otp.OtpExpiryDuration)
 
             if(!config.Config.Core.Otp.Proxy){
-                // const from = config.Config.Email.SendInBlue.Host
-                // const to = form.email
-                // const subject = '[Green Pellar] Email Varify'
-                // const text = 'otp for verify the email : ' + otp
-                // const mailObj = {
-                //     from,to,subject,text
-                // }
-                // const result = await thirdparty.sendEmail(mailObj);
-                
                 emailQueue.add({
                     to: form.email,
                     subject : '[Green Pellar] Email Varify',

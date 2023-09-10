@@ -5,15 +5,18 @@ import httpStatus from 'http-status-codes'
 
 
 async function GetUser(req,res){
-    const token = req.cookies.utoken;
+    let token = req.cookies.utoken || req.cookies['uToken'];
     if(!token || token === ''){
         singletons.log.error("[GetUser]","user token not found")
         return res.status(httpStatus.CONFLICT).end()
     }
-
     let user = await cacheProvider.Client.get(token)
-    user = JSON.parse(user)
 
+    if(!user || user === null){
+        singletons.log.error("[GetUser]","user not found")
+        return res.status(httpStatus.BAD_REQUEST).end()
+    }
+    user = JSON.parse(user)
     return user 
 }
 

@@ -7,18 +7,9 @@ const apiUrl = process.env.REACT_APP_API_ENDPOINT;
 
 
 export default function Signup() {
-    console.log({apiUrl});
     const history = useNavigate();
-    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    // useEffect(() => {
-    //     const user = JSON.parse(localStorage.getItem("user"));
-    //     if (user && document.cookie.includes(user.token)) {
-    //         history('/sendmail');
-    //     }
-    // });
 
     const Postdata = async (event) => {
         event.preventDefault();
@@ -33,19 +24,21 @@ export default function Signup() {
                 "applicaiton-type": "application/json"
             },
             body: JSON.stringify({
-                name,
                 email,
                 password
             })
         }).then(res => res.json())
             .then(data => {
-                if (data.Error) {
-                    console.log(data.Error);
-                    alert(data.Error)
+                if (!data.status) {
+                    console.log(data.errors);
+                    if(!data.response){
+                        history('/login')
+                    }
+                    throw new Error(data.errors);
                 } else {
-                    localStorage.setItem("user",JSON.stringify(data.Response))
+                    localStorage.setItem("OtpId",(data.response.OtpId))
                     alert('Signup Successfully');
-                    history('/login');
+                    history('/verifyotp');
                 }
             }).catch(err => {
                 alert(err)
@@ -56,7 +49,6 @@ export default function Signup() {
             <h1>Signup</h1>
             <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'left' }}>
                 
-                <Input placeholder="Name" type="name" value={name} onChange={(e) => setName(e.target.value)} />
                
                 <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 
